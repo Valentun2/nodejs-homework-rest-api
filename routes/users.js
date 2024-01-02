@@ -6,7 +6,7 @@ import validateBody from "../decorators/validateBody.js";
 const router = Router();
 
 router.post("/register",isEmptyBody, validateBody(authSchema), controllers.register)
-router.get("/login", isEmptyBody,validateBody(authSchema),controllers.login)
+router.post("/login", isEmptyBody,validateBody(authSchema),controllers.login)
 router.get("/current",authenticate, controllers.currentUser);
 router.post("/logout",authenticate,controllers.logout)
 export default router;
