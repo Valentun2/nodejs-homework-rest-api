@@ -4,14 +4,18 @@ import Contact from "../models/contact.js";
 import ctrlWrapper from "../decorators/ctrlWrapper.js";
 
 const getAllContact = async (req, res) => {
-  console.log(Contact);
-  const result = await Contact.find()
+  const{_id:owner}=req.user
+const {page = 1,limit = 10}=req.query
+const skip = (page-1)*limit
+  const result = await Contact.find({owner},"-createAt",{skip,limit}).populate("owner", "email")
   res.status(200).json( result );
 };
 
 const getContactById = async (req, res, ) => {
-  const { contactId } = req.params;
-  const result = await Contact.findById(contactId);
+  const { contactId:_id } = req.params;
+  const{_id:owner}=req.user
+
+  const result = await Contact.findOne({_id, owner});
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -19,7 +23,9 @@ const getContactById = async (req, res, ) => {
 };
 
 const addContact = async (req, res) => {
-  const result = await Contact.create(req.body);
+
+  const{_id:owner}=req.user
+  const result = await Contact.create({...req.body,owner});
   if (!result) {
     throw HttpError(400, "missing required name field");
   }
@@ -27,8 +33,9 @@ const addContact = async (req, res) => {
 };
 
 const removeContact = async (req, res) => {
-  const { contactId } = req.params;
-  const result = await Contact.findByIdAndDelete(contactId);
+  const { contactId:_id } = req.params;
+  const{_id:owner}=req.user
+  const result = await Contact.findOneAndDelete({_id,owner});
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -36,9 +43,9 @@ const removeContact = async (req, res) => {
 };
 
 const updateContact = async (req, res) => {
-  const { contactId } = req.params;
-
-  const result = await Contact.findByIdAndUpdate(contactId, req.body);
+  const { contactId:_id } = req.params;
+  const{_id:owner}=req.user
+  const result = await Contact.findByIdAndUpdate({_id,owner}, req.body);
   if (!result) {
     throw HttpError(404, "Not found");
   }
@@ -48,7 +55,7 @@ const updateContact = async (req, res) => {
 const updateStatusContact =async (req, res) => {
   const { contactId } = req.params;
 
-  const result = await Contact.findByIdAndUpdate(contactId, req.body);
+  const result = await Contact.findOneAndUpdate(contactId, req.body);
   if (!result) {
     throw HttpError(404, "Not found");
   }
