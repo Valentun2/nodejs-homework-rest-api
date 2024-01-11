@@ -18,7 +18,15 @@ import { Schema,model } from "mongoose";
       enum: ["starter", "pro", "business"],
       default: "starter"
     },
-    token: String
+    token: {
+      type:String,
+      default:""
+    },
+   
+    avatar :{
+      type:String,
+      required:true
+    }
   },
   {versionKey:false, timeseries:true}
   )
@@ -27,6 +35,8 @@ export const authSchema = Joi.object({
   password: Joi.string().required(),
   email: Joi.string().required()
 })
+
+
 
   const User = model("user",userSchema)
 

@@ -4,6 +4,11 @@ import User from "../models/user.js";
 import bcrypt from "bcrypt"
 import jwt  from "jsonwebtoken";
 import dotenv from "dotenv"
+import gravatar from "gravatar"
+import path from "path"
+import fs from "fs/promises"
+import Jimp from "jimp";
+const avatarPath = path.resolve( "public","avatars")
 
 dotenv.config()
 
@@ -20,9 +25,9 @@ const register = async (req, res) => {
   }
 
   const hashPassword = await bcrypt.hash(password, 10)
+const defaultUrl = gravatar.url(email)
 
-
-  const newUser = await User.create({...req.body, password:hashPassword});
+  const newUser = await User.create({...req.body, password:hashPassword,avatar:defaultUrl});
     if (!newUser) {
       throw HttpError(400);
     }
@@ -86,9 +91,36 @@ await User.findByIdAndUpdate(_id,{token:""})
 res.status(204).json()
 }
 
+const updateAvatar = async (req,res)=>{
+  if(!req.file){
+    throw HttpError(400, "Avatar is requare")
+  }
+  const { _id} = req.user
+ const {path : oldPath,filename} = req.file
+
+const newPath = path.join(avatarPath, `${_id}${filename}`)
+Jimp.read(oldPath, (err, photo) => {
+  if (err){
+    throw err
+  };
+  photo
+    .resize(250, 250)
+    .write(newPath)
+});
+
+// await fs.rename(oldPath,newPath)
+
+const avatarUrl = path.join( "avatars",`${_id}${filename}`)
+await  User.findByIdAndUpdate(_id,{ avatar:avatarUrl})
+  res.json({avatar:avatarUrl});
+  }
+  
+
+
   export default{
     register:ctrlWrapper(register),
     login:ctrlWrapper(login),
 currentUser:ctrlWrapper(currentUser),
-logout:ctrlWrapper(logout)
+logout:ctrlWrapper(logout),
+updateAvatar:ctrlWrapper(updateAvatar)
     }
