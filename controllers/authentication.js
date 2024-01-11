@@ -108,7 +108,7 @@ Jimp.read(oldPath, (err, photo) => {
     .write(newPath)
 });
 
-// await fs.rename(oldPath,newPath)
+await fs.unlink(oldPath)
 
 const avatarUrl = path.join( "avatars",`${_id}${filename}`)
 await  User.findByIdAndUpdate(_id,{ avatar:avatarUrl})
