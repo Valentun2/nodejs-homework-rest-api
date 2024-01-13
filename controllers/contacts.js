@@ -23,7 +23,7 @@ const getContactById = async (req, res, ) => {
 };
 
 const addContact = async (req, res) => {
-
+console.log(req.body);
   const{_id:owner}=req.user
   const result = await Contact.create({...req.body,owner});
   if (!result) {
