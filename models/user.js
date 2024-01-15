@@ -26,8 +26,19 @@ import { Schema,model } from "mongoose";
     avatar :{
       type:String,
       required:true
-    }
+    },
+    verify: {
+        type: Boolean,
+        default: false,
+      },
+    verificationToken: {
+        type: String,
+        required: [true, 'Verify token is required'],
+      },
+    
+    
   },
+  
   {versionKey:false, timeseries:true}
   )
 
@@ -36,6 +47,9 @@ export const authSchema = Joi.object({
   email: Joi.string().required()
 })
 
+export const verifySchema = Joi.object({
+  email: Joi.string().required()
+})
 
 
   const User = model("user",userSchema)
